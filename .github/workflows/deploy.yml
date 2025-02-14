@@ -1,0 +1,94 @@
+name: Deploy Flutter App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create .env file for CI/CD
+        run:
+          echo "${{ secrets.ENV_FILE }}" > .env
+          
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: pubspec.yaml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Optional: Run code generation if needed
+      - name: Run build_runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      # Decode Android keystore (ensure secrets are configured)
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > android/app/keystore.jks
+
+      - name: Set up Ruby and Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+      
+      - name: Install dependencies
+        run: bundle install
+
+      # Deploy Android using Fastlane
+      - name: Deploy Android
+        run: |
+            cd android
+            bundle exec fastlane android deploy_android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+  deploy-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create .env file for CI/CD
+        run:
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: pubspec.yaml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Install CocoaPods dependencies for iOS
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install
+
+      - name: Set up Ruby and Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+      
+      - name: Install dependencies
+        run: bundle install
+
+      # Deploy iOS using Fastlane
+      - name: Deploy iOS
+        run: |
+            cd ios
+            bundle exec fastlane ios deploy_ios
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }} # For code signing if using Fastlane Match

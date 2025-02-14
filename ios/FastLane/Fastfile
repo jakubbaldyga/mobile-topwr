@@ -1,0 +1,5 @@
+lane :build_flutter do
+  sh "flutter pub get"
+  sh "dart run build_runner build --delete-conflicting-outputs"
+  sh "flutter build ios --release"
+end
