@@ -1,8 +1,0 @@
-platform :android do
-  desc "Build and deploy Android app"
-  lane :deploy_android do
-    sh "dart run build_runner build"
-    sh "flutter build apk"
-    upload_to_play_store(json_key: ENV["GOOGLE_PLAY_JSON_KEY"], track: "internal")
-  end
-end
