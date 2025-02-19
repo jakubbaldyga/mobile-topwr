@@ -1,0 +1,2 @@
+json_key_file("topwr-key.json")
+package_name("com.solvro.topwr")
