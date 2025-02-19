@@ -18,16 +18,10 @@ jobs:
         run: echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
 
       - name: Decode and place Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_JKS_B64 }}" | base64 -d > android/app/keystore.jks
-          echo "${{ secrets.KEYSTORE_JKS_B64 }}" | base64 -d > android/keystore.jks
-          echo "${{ secrets.KEYSTORE_JKS_B64 }}" | base64 -d > android/fastlane/keystore.jks
+        run: echo "${{ secrets.KEYSTORE_JKS_B64 }}" | base64 -d > android/app/storeFile.jks
 
       - name: Decode and place TOPWR Key JSON
-        run: |
-          echo "${{ secrets.KEY_JSON_B64 }}" | base64 -d > android/app/key.json
-          echo "${{ secrets.KEY_JSON_B64 }}" | base64 -d > android/key.json
-          echo "${{ secrets.KEY_JSON_B64 }}" | base64 -d > android/fastlane/key.json
+        run: echo "${{ secrets.KEY_JSON_B64 }}" | base64 -d > android/key.json
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
