@@ -1,2 +1,2 @@
-json_key_file("key.json")
+json_key_file("service-acount-key.json")
 package_name("com.solvro.topwr")
